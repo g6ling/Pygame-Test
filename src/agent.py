@@ -5,12 +5,12 @@ from .memory import Memory
 from .model import DRQN
 from .config import lr, batch_size, replay_memory_capacity, device
 class Agent:
-    def __init__(self, num_inputs, action_set, update_on, max_episode):
+    def __init__(self, num_inputs, action_set, update_on, max_episode, hidden_size):
         self.num_inputs = num_inputs
         self.action_set = action_set
         self.num_actions = len(action_set)
         self.update_on = update_on
-        self.build_network()
+        self.build_network(hidden_size)
         self.reset()
         self.memory = Memory(replay_memory_capacity)
         if max_episode is not None:
@@ -18,9 +18,9 @@ class Agent:
         else:
             self.max_episode = 5000
     
-    def build_network(self):
-        self.online_net = DRQN(self.num_inputs, self.num_actions).to(device)
-        self.target_net = DRQN(self.num_inputs, self.num_actions).to(device)
+    def build_network(self, hidden_size):
+        self.online_net = DRQN(self.num_inputs, self.num_actions, hidden_size).to(device)
+        self.target_net = DRQN(self.num_inputs, self.num_actions, hidden_size).to(device)
         self.online_net.train()
         self.target_net.train()
 

@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 from .agent import Agent
-
+from .config import device
 from .envs import LogMaker, envs
 
 
@@ -17,14 +17,14 @@ def run(env_wrapper, seed_num, update_on):
     env = env_wrapper.env
     goal_score = env_wrapper.goal_score
 
-    agent = Agent(len(env.getGameState().values()), env.getActionSet(), update_on, env_wrapper.max_episode)
+    agent = Agent(len(env.getGameState().values()), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
 
     running_score = 0
     for e in range(env_wrapper.max_episode+1):
         env.reset_game()
         done = False
         state = env.getGameState()
-        state = torch.Tensor(list(state.values()))
+        state = torch.Tensor(list(state.values())).to(device)
         score = 0
 
         while not done:
@@ -32,7 +32,7 @@ def run(env_wrapper, seed_num, update_on):
             reward = env.act(real_action)
 
             next_state = env.getGameState()
-            next_state = torch.Tensor(list(next_state.values()))
+            next_state = torch.Tensor(list(next_state.values())).to(device)
 
             done = env.game_over()
 

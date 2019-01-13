@@ -5,17 +5,15 @@ import torch.nn.functional as F
 from .config import gamma, device, batch_size, sequence_length, burn_in_length, device
 
 class DRQN(nn.Module):
-    def __init__(self, num_inputs, num_outputs):
+    def __init__(self, num_inputs, num_outputs, hidden_size):
         super(DRQN, self).__init__()
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
 
-        # LSTM Cell 로 변경
-        # Q-Value-Discrepancy 을 
         self.lstm = nn.LSTMCell(input_size=num_inputs, hidden_size=16)
-        self.fc = nn.Linear(16, 128)
-        self.fc_adv = nn.Linear(128, num_outputs)
-        self.fc_val = nn.Linear(128, 1)
+        self.fc = nn.Linear(16, hidden_size)
+        self.fc_adv = nn.Linear(hidden_size, num_outputs)
+        self.fc_val = nn.Linear(hidden_size, 1)
 
         for m in self.modules():
             if isinstance(m, nn.Linear):
@@ -125,4 +123,4 @@ class DRQN(nn.Module):
             
         _, action = torch.max(qvalue, 1)
 
-        return action.numpy()[0], hidden
+        return action.cpu().numpy()[0], hidden
