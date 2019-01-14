@@ -18,7 +18,7 @@ class EnvWrapper():
         self.max_episode = max_episode
 
 envs = [
-    EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 10000),
+    EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 1000),
     EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=False), 100, 10000),
     # EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 10000),
     EnvWrapper('pong', PLE(Pong(), fps=30, display_screen=False), 100, 10000),

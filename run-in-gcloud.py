@@ -15,6 +15,7 @@ import os
 # 종료시 종료.
 os.environ['SDL_VIDEODRIVER'] = 'dummy'
 if __name__ == '__main__':
+    send('Stack Commands')
     start = timeit.default_timer()
 
     pool = Pool(multiprocessing.cpu_count())
