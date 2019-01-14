@@ -1,0 +1,1 @@
+python ./run-in-gcloud.py ; python ./send_slack.py ; poweroff
