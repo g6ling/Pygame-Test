@@ -10,6 +10,9 @@ from ple.games.snake import Snake
 from ple.games.waterworld import WaterWorld
 
 
+# os.putenv('SDL_VIDEODRIVER', 'fbcon')
+# os.environ["SDL_VIDEODRIVER"] = "dummy"
+
 class EnvWrapper():
     def __init__(self, name, env, goal_score, max_episode):
         self.name = name
@@ -17,14 +20,18 @@ class EnvWrapper():
         self.goal_score = goal_score
         self.max_episode = max_episode
 
-envs = [
-    EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 1000),
-    EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=False), 100, 10000),
-    # EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 10000),
-    EnvWrapper('pong', PLE(Pong(), fps=30, display_screen=False), 100, 10000),
-    EnvWrapper('snake', PLE(Snake(), fps=30, display_screen=False), 30, 10000),
-    EnvWrapper('waterworld', PLE(WaterWorld(), fps=30, display_screen=False), 100, 10000),
-]
+envs_name = ['catcher', 'flappybird', 'pong', 'snake']
+
+def get_envs():
+    envs = [
+        EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 1000),
+        EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=False), 100, 10000),
+        # EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 10000),
+        EnvWrapper('pong', PLE(Pong(), fps=30, display_screen=False), 100, 10000),
+        EnvWrapper('snake', PLE(Snake(), fps=30, display_screen=False), 30, 10000),
+        EnvWrapper('waterworld', PLE(WaterWorld(), fps=30, display_screen=False), 100, 10000),
+    ]
+    return envs
 
 
 def make_log_file_name(env_name, seed_num, update_on):

@@ -27,7 +27,7 @@ if __name__ == '__main__':
             commands.append('python test.py --seed_num=%d --env_num=%d' % (seed_num, env_num))
     
     for i, return_code in enumerate(pool.imap(partial(call, shell=True), commands)):
-        send('Complete : ' + commands[i])
+
         if return_code != 0:
             print('%d command fail: %d, %s' % (i, return_code, commands[i]))
 
