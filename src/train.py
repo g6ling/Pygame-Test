@@ -4,7 +4,7 @@ import numpy as np
 
 from .agent import Agent
 from .config import device
-from .envs import LogMaker, envs
+from .envs import LogMaker, get_envs
 
 
 def run(env_wrapper, seed_num, update_on):
@@ -59,5 +59,6 @@ def run(env_wrapper, seed_num, update_on):
 
 
 if __name__=="__main__":
+    envs = get_envs()
     run(envs[0], 500, True)
     # main(envs[0], 500, False)
