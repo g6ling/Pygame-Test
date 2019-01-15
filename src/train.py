@@ -44,7 +44,7 @@ def run(env_wrapper, seed_num, update_on):
             score += reward
 
             if goal_score is not None and score >= goal_score:
-                break
+                done = True
         
         loss, q_discrepancy = agent.train()
             
