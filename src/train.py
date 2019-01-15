@@ -11,6 +11,8 @@ def run(env_wrapper, seed_num, update_on):
     torch.manual_seed(seed_num)
     random.seed(seed_num)
     np.random.seed(seed_num)
+
+    process_name = '{} - {} - {}'.format(env_wrapper.name, seed_num, str(update_on))
     
     log_maker = LogMaker(env_wrapper.name, seed_num, update_on)
 
@@ -53,8 +55,8 @@ def run(env_wrapper, seed_num, update_on):
         else:
             running_score = 0.99 * running_score + 0.01 * score
         if e % 10 == 0:
-            print('{} episode | score: {:.2f} | epsilon: {:.2f}'.format(
-                e, score, agent.epsilon))
+            print('{} ||| {} episode | score: {:.2f} | epsilon: {:.2f}'.format(
+               process_name, e, score, agent.epsilon))
         log_maker.log(e, loss, score, q_discrepancy)
 
 
