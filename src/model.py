@@ -10,8 +10,11 @@ class DRQN(nn.Module):
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
 
-        self.lstm = nn.LSTMCell(input_size=num_inputs, hidden_size=16)
-        self.fc = nn.Linear(16, hidden_size)
+        self.lstm = nn.LSTMCell(input_size=num_inputs, hidden_size=32)
+        self.fc = nn.Sequential(
+            nn.Linear(32, hidden_size),
+            nn.ReLU()
+        )
         self.fc_adv = nn.Linear(hidden_size, num_outputs)
         self.fc_val = nn.Linear(hidden_size, 1)
 
@@ -27,7 +30,7 @@ class DRQN(nn.Module):
         else:
             hx, cx = self.lstm(x)
 
-        out = F.relu(self.fc(hx))
+        out = self.fc(hx)
         adv = self.fc_adv(out)
         adv = adv.view(batch_size, self.num_outputs)
         val = self.fc_val(out)

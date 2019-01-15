@@ -53,7 +53,7 @@ class Agent:
         loss, q_discrepancy = None, None
         if len(self.memory) > batch_size:
             self.epsilon -= (1.5 / self.max_episode)
-            self.epsilon = max(self.epsilon, 0.1)
+            self.epsilon = max(self.epsilon, 0.00001)
             for _ in range(10):
                 batch, indexes = self.memory.sample(batch_size)
                 loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch)
