@@ -13,12 +13,12 @@ import os
 # 시작 slack
 # 종료시 걸린 시간, 실행했던 commands 들 slack
 # 종료시 종료.
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
+
 if __name__ == '__main__':
     send('Stack Commands')
     start = timeit.default_timer()
 
-    pool = Pool(4)
+    # pool = Pool(4)
     commands = []
     for env_num in [0]:
         for i in range(1, 4+1):
@@ -26,10 +26,11 @@ if __name__ == '__main__':
             commands.append('python test.py --seed_num=%d --env_num=%d --update_on' % (seed_num, env_num))
             commands.append('python test.py --seed_num=%d --env_num=%d' % (seed_num, env_num))
     
-    for i, return_code in enumerate(pool.imap(partial(call, shell=True), commands)):
-
-        if return_code != 0:
-            print('%d command fail: %d, %s' % (i, return_code, commands[i]))
+    for command in commands:
+        call(command, shell=True)
+    # for i, return_code in enumerate(pool.imap(partial(call, shell=True), commands)):
+    #     if return_code != 0:
+    #         print('%d command fail: %d, %s' % (i, return_code, commands[i]))
 
     
     stop = timeit.default_timer()

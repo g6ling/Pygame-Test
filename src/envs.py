@@ -10,9 +10,6 @@ from ple.games.snake import Snake
 from ple.games.waterworld import WaterWorld
 
 
-# os.putenv('SDL_VIDEODRIVER', 'fbcon')
-# os.environ["SDL_VIDEODRIVER"] = "dummy"
-
 class EnvWrapper():
     def __init__(self, name, env, goal_score, max_episode):
         self.name = name
