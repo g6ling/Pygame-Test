@@ -7,6 +7,16 @@ from .config import device
 from .envs import LogMaker, get_envs
 
 
+def case_env_state(env_name, state):
+    if env_name == 'snake':
+        return torch.Tensor(list(state.values())[:4]).to(device)
+    return torch.Tensor(list(state.values())).to(device)
+
+def case_state_len(env_name, env):
+    if env_name == 'snake':
+        return 4
+    return len(env.getGameState().values())
+
 def run(env_wrapper, seed_num, update_on):
     torch.manual_seed(seed_num)
     random.seed(seed_num)
@@ -19,14 +29,14 @@ def run(env_wrapper, seed_num, update_on):
     env = env_wrapper.env
     goal_score = env_wrapper.goal_score
 
-    agent = Agent(len(env.getGameState().values()), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
+    agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
 
     running_score = 0
     for e in range(env_wrapper.max_episode+1):
         env.reset_game()
         done = False
         state = env.getGameState()
-        state = torch.Tensor(list(state.values())).to(device)
+        state = case_env_state(env_wrapper.name, state)
         score = 0
 
         while not done:
@@ -34,7 +44,7 @@ def run(env_wrapper, seed_num, update_on):
             reward = env.act(real_action)
 
             next_state = env.getGameState()
-            next_state = torch.Tensor(list(next_state.values())).to(device)
+            next_state = case_env_state(env_wrapper.name, next_state)
 
             done = env.game_over()
 
