@@ -3,7 +3,6 @@ import numpy as np
 
 from ple import PLE
 from ple.games.catcher import Catcher
-from ple.games.flappybird import FlappyBird
 from ple.games.pixelcopter import Pixelcopter
 from ple.games.pong import Pong
 from ple.games.snake import Snake
@@ -22,11 +21,10 @@ envs_name = ['catcher', 'flappybird', 'pong', 'snake']
 def get_envs():
     envs = [
         EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 1000),
-        EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=False), 100, 100000),
-        # EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 10000),
-        EnvWrapper('pong', PLE(Pong(), fps=30, display_screen=False), 100, 10000),
-        EnvWrapper('snake', PLE(Snake(), fps=30, display_screen=False), 30, 10000),
-        EnvWrapper('waterworld', PLE(WaterWorld(), fps=30, display_screen=False), 100, 10000),
+        EnvWrapper('pong', PLE(Pong(cpu_speed_ratio=0.25), display_screen=False), 100, 1000),
+        EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 1000),
+        EnvWrapper('snake', PLE(Snake(), fps=30, display_screen=False), 30, 1000),
+        # EnvWrapper('waterworld', PLE(WaterWorld(), fps=30, display_screen=False), 100, 10000),
     ]
     return envs
 

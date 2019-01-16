@@ -17,6 +17,15 @@ class Memory(object):
     def push(self, state, next_state, action, reward, mask, rnn_state):
         self.local_memory.append(Transition(state, next_state, action, reward, mask, torch.stack(rnn_state).view(2, -1)))
         if mask == 0:
+            while len(self.local_memory) < sequence_length:
+                self.local_memory.append(Transition(
+                    torch.zeros_like(state),
+                    torch.zeros_like(next_state),
+                    0,
+                    0,
+                    0,
+                    torch.zeros_like(torch.stack(rnn_state).view(2, -1))
+                ))
             if len(self.memory) < self.capacity:
                 self.memory.append(self.local_memory)
             else:
