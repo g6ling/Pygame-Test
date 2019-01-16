@@ -7,6 +7,7 @@ from ple.games.pixelcopter import Pixelcopter
 from ple.games.pong import Pong
 from ple.games.snake import Snake
 from ple.games.waterworld import WaterWorld
+from ple.games.flappybird import FlappyBird
 
 
 class EnvWrapper():
@@ -24,6 +25,11 @@ def get_envs():
         EnvWrapper('pong', PLE(Pong(cpu_speed_ratio=0.25), display_screen=False), 100, 1000),
         EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 1000),
         EnvWrapper('snake', PLE(Snake(init_length=1), fps=30, display_screen=False), 30, 3000),
+        EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=True, reward_values={
+            "positive": 1,
+            "tick": 0.1,
+            "loss": -1,
+        }), 200, 1000),
         # EnvWrapper('waterworld', PLE(WaterWorld(), fps=30, display_screen=False), 100, 10000),
     ]
     return envs
