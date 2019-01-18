@@ -15,27 +15,22 @@ import os
 # 종료시 종료.
 
 if __name__ == '__main__':
-    send('Stack Commands')
-    start = timeit.default_timer()
+    send('Start Commands')
 
-    # pool = Pool(4)
+    pool = Pool(2)
     commands = []
-    for env_num in [0]:
-        for i in range(1, 4+1):
+    for env_num in [1]:
+        for i in range(1, 8+1):
             seed_num = i * 100
             commands.append('python test.py --seed_num=%d --env_num=%d --update_on' % (seed_num, env_num))
             commands.append('python test.py --seed_num=%d --env_num=%d' % (seed_num, env_num))
     
     for command in commands:
         call(command, shell=True)
-    # for i, return_code in enumerate(pool.imap(partial(call, shell=True), commands)):
-    #     if return_code != 0:
-    #         print('%d command fail: %d, %s' % (i, return_code, commands[i]))
+    for i, return_code in enumerate(pool.imap(partial(call, shell=True), commands)):
+        if return_code != 0:
+            print('%d command fail: %d, %s' % (i, return_code, commands[i]))    
 
-    
-    stop = timeit.default_timer()
-
-    print('Time: ', stop - start)
 
 
 

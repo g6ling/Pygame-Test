@@ -17,20 +17,15 @@ class EnvWrapper():
         self.goal_score = goal_score
         self.max_episode = max_episode
 
-envs_name = ['catcher', 'flappybird', 'pong', 'snake']
-
 def get_envs():
     envs = [
         EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 1000),
-        EnvWrapper('pong', PLE(Pong(cpu_speed_ratio=0.25), display_screen=False), 100, 1000),
-        EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 1000),
-        EnvWrapper('snake', PLE(Snake(init_length=1), fps=30, display_screen=False), 30, 3000),
         EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=True, reward_values={
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 200, 1000),
-        # EnvWrapper('waterworld', PLE(WaterWorld(), fps=30, display_screen=False), 100, 10000),
+        }), 1000, 3000),
+        EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 1000),
     ]
     return envs
 
