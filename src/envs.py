@@ -26,7 +26,7 @@ def get_envs():
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 1000, 1000),
+        }), 1000, 2000),
         EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 2000),
     ]
     return envs
