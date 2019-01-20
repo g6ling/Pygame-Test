@@ -8,16 +8,17 @@ from .envs import LogMaker, get_envs
 
 
 def case_env_state(env_name, state):
-    if env_name == 'snake':
-        return torch.Tensor(list(state.values())[:4]).to(device)
+    if env_name == 'cartpole':
+        return torch.Tensor(state[[0, 2]]).to(device)
     return torch.Tensor(list(state.values())).to(device)
 
 def case_state_len(env_name, env):
-    if env_name == 'snake':
-        return 4
+    if env_name == 'cartpole':
+        return 2
     return len(env.getGameState().values())
 
 def run(env_wrapper, seed_num, update_on):
+    env_name = env_wrapper.name
     torch.manual_seed(seed_num)
     random.seed(seed_num)
     np.random.seed(seed_num)
@@ -29,24 +30,35 @@ def run(env_wrapper, seed_num, update_on):
     env = env_wrapper.env
     goal_score = env_wrapper.goal_score
 
-    agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
+    if env_name == 'cartpole':
+        agent = Agent(2, [0, 1], update_on, env_wrapper.max_episode, 256)
+    else:
+        agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
 
     running_score = 0
     for e in range(env_wrapper.max_episode+1):
-        env.reset_game()
+        
+        if env_name == 'cartpole':
+            state = env.reset()
+        else:
+            env.reset_game()
+            state = env.getGameState()
+
         done = False
-        state = env.getGameState()
         state = case_env_state(env_wrapper.name, state)
         score = 0
 
         while not done:
-            action, real_action = agent.get_action(state)    
-            reward = env.act(real_action)
+            action, real_action = agent.get_action(state)
+            if env_name == 'cartpole':
+                next_state, reward, done, _ = env.step(action)
+            else:
+                reward = env.act(real_action)
 
-            next_state = env.getGameState()
+                next_state = env.getGameState()
+                done = env.game_over()
             next_state = case_env_state(env_wrapper.name, next_state)
 
-            done = env.game_over()
 
             mask = 0 if done else 1
 

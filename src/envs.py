@@ -1,6 +1,7 @@
 import os
 import numpy as np
 
+import gym
 from ple import PLE
 from ple.games.catcher import Catcher
 from ple.games.pixelcopter import Pixelcopter
@@ -19,13 +20,14 @@ class EnvWrapper():
 
 def get_envs():
     envs = [
-        EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 200, 1000),
+        EnvWrapper('cartpole', gym.make('CartPole-v1'), 500, 2000),
+        EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 500, 2000),
         EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=True, reward_values={
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 1000, 3000),
-        EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 1000),
+        }), 1000, 1000),
+        EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 2000),
     ]
     return envs
 

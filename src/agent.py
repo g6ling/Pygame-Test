@@ -1,4 +1,4 @@
-import random
+import numpy as np
 import torch.optim as optim
 
 from .memory import Memory
@@ -29,7 +29,7 @@ class Agent:
 
     def reset(self):
         self.hidden = None
-        self.epsilon = 1.0
+        self.epsilon = 0.2
 
     def update_target_model(self):
         # Target <- Net
@@ -39,8 +39,8 @@ class Agent:
         action, hidden = self.target_net.get_action(state, self.hidden)
         
         self.hidden = hidden
-        if random.random() <= self.epsilon:
-            action_num = random.randint(0, self.num_actions - 1)
+        if np.random.random() <= self.epsilon:
+            action_num = np.random.randint(self.num_actions)
         else:
             action_num = action
         return action_num, self.action_set[action_num]
