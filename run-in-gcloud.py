@@ -25,8 +25,8 @@ if __name__ == '__main__':
             commands.append('python test.py --seed_num=%d --env_num=%d --update_on' % (seed_num, env_num))
             commands.append('python test.py --seed_num=%d --env_num=%d' % (seed_num, env_num))
     
-    for command in commands:
-        call(command, shell=True)
+    # for command in commands:
+    #     call(command, shell=True)
     for i, return_code in enumerate(pool.imap(partial(call, shell=True), commands)):
         if return_code != 0:
             print('%d command fail: %d, %s' % (i, return_code, commands[i]))    
