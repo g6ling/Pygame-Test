@@ -10,8 +10,8 @@ class Agent:
         self.action_set = action_set
         self.num_actions = len(action_set)
         self.update_on = update_on
-        self.build_network(hidden_size)
         self.reset()
+        self.build_network(hidden_size)
         self.memory = Memory(replay_memory_capacity)
         if max_episode is not None:
             self.max_episode = max_episode
@@ -24,12 +24,13 @@ class Agent:
         self.online_net.train()
         self.target_net.train()
 
-        self.optimizer = optim.Adam(self.online_net.parameters(), lr=lr)
+        self.optimizer = optim.Adam(self.online_net.parameters(), lr=self.lr)
         self.update_target_model()
 
     def reset(self):
         self.hidden = None
         self.epsilon = 0.2
+        self.lr = lr
 
     def update_target_model(self):
         # Target <- Net
@@ -48,6 +49,10 @@ class Agent:
     def push_replay(self, state, next_state, action, reward, mask):
         self.memory.push(state, next_state, action, reward, mask, self.hidden)
 
+    def adjust_lr(self):
+        self.lr = max(lr * 0.99, 0.0001)
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = self.lr
     
     def train(self):
         loss, q_discrepancy = None, None
@@ -60,4 +65,6 @@ class Agent:
 
                 self.memory.rnn_state_update(indexes, new_rnn_state, self.update_on)
             self.update_target_model()
+        
+        self.adjust_lr()
         return loss, q_discrepancy
