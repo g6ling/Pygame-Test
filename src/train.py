@@ -12,21 +12,19 @@ def case_env_state(env_name, state):
         return torch.Tensor(state[[0, 2]]).to(device)
     if env_name == 'catcher':
         return torch.Tensor([state['player_x'] / 64, state['fruit_x'] / 64, state['fruit_y'] / 64]).to(device)
-    if env_name == 'pong':
-        return torch.Tensor([state['player_y'] / 64, state['cpu_y'] / 64, state['ball_x'] / 64, state['ball_y'] / 64]).to(device)
-    if env_name == 'snake':
-       return torch.Tensor([state['snake_head_x'] / 64, state['snake_head_y'] / 64, state['food_x'] / 64, state['food_y'] / 64]).to(device) 
+    if env_name == 'pixelcopter':
+        return torch.Tensor([state['player_y'] / 48, state['player_dist_to_ceil'] / 48, state['player_dist_to_floor'] / 48, 
+        state['next_gate_dist_to_player'] / 48, state['next_gate_block_top'] / 48, state['next_gate_block_bottom'] / 48])
 
     if env_name == 'flappybird':
         return torch.Tensor([
             state['player_y'] / 512,
-            state['player_vel'] / 100,
 
-            state['next_pipe_dist_to_player'] / 100,
+            state['next_pipe_dist_to_player'] / 288,
             state['next_pipe_top_y'] / 512,
             state['next_pipe_bottom_y'] / 512,
 
-            state['next_next_pipe_dist_to_player'] / 100,
+            state['next_next_pipe_dist_to_player'] / 288,
             state['next_next_pipe_top_y'] / 512,
             state['next_next_pipe_bottom_y'] / 512,
         ]).to(device)
@@ -37,10 +35,10 @@ def case_state_len(env_name, env):
         return 2
     if env_name == 'catcher':
         return 3
-    if env_name == 'pong':
-        return 4
-    if env_name == 'snake':
-        return 4
+    if env_name == 'pixelcopter':
+        return 6
+    if env_name == 'flappybird':
+        return 7
     return len(env.getGameState().values())
 
 def run(env_wrapper, seed_num, update_on):
@@ -86,6 +84,9 @@ def run(env_wrapper, seed_num, update_on):
                 done = env.game_over()
             next_state = case_env_state(env_wrapper.name, next_state)
 
+            if goal_score is not None and score >= goal_score:
+                done = True
+
             mask = 0 if done else 1
 
             agent.push_replay(state, next_state, action, reward, mask)
@@ -93,8 +94,7 @@ def run(env_wrapper, seed_num, update_on):
             state = next_state
             score += reward
 
-            if goal_score is not None and score >= goal_score:
-                done = True
+            
         
         loss, q_discrepancy = agent.train()
             

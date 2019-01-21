@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     pool = Pool(1)
     commands = []
-    for env_num in [1,2,3,4]:
+    for env_num in [0,1,2,3]:
         for i in range(1, 1+1):
             seed_num = i * 100
             commands.append('python test.py --seed_num=%d --env_num=%d --update_on' % (seed_num, env_num))

@@ -25,17 +25,12 @@ def get_envs():
             "negative": -1,
             "loss": -1,
         }), 100, 1000),
-        EnvWrapper('flappybird', PLE(FlappyBird(), display_screen=False, reward_values={
+        EnvWrapper('pixelcopter', PLE(Pixelcopter(), display_screen=False), 200, 1500),
+                EnvWrapper('flappybird', PLE(FlappyBird(), display_screen=False, reward_values={
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 100, 2000),
-        EnvWrapper('snake', PLE(Snake(init_length=1), display_screen=True), 200, 2000),
-        EnvWrapper('pong', PLE(Pong(MAX_SCORE=3, cpu_speed_ratio=0.25), reward_values={
-            "positive": 1,
-            "tick": 0.1,
-            "loss": -1,
-        }, display_screen=True), 200, 2000),
+        }), 100, 1500),
     ]
     return envs
 
