@@ -29,7 +29,7 @@ def case_env_state(env_name, state):
             state['next_next_pipe_dist_to_player'] / 100,
             state['next_next_pipe_top_y'] / 512,
             state['next_next_pipe_bottom_y'] / 512,
-        ])
+        ]).to(device)
     return torch.Tensor(list(state.values())).to(device)
 
 def case_state_len(env_name, env):
