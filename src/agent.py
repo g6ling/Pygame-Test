@@ -50,7 +50,7 @@ class Agent:
         self.memory.push(state, next_state, action, reward, mask, self.hidden)
 
     def adjust_lr(self):
-        self.lr = max(self.lr * 0.995, 0.0005)
+        self.lr = max(self.lr * 0.995, 0.00005)
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = self.lr
     
