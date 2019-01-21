@@ -35,7 +35,10 @@ class Memory(object):
 
     def sample(self, batch_size):
         batch_state, batch_next_state, batch_action, batch_reward, batch_mask, batch_rnn_state = [], [], [], [], [], []
-        batch_indexes = np.random.choice(np.arange(len(self.memory)), batch_size)
+        p = np.array([len(episode) for episode in self.memory])
+        p = p / p.sum()
+        
+        batch_indexes = np.random.choice(np.arange(len(self.memory)), batch_size, p=p)
         indexes = []
         
         for batch_idx in batch_indexes:
