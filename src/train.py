@@ -54,13 +54,12 @@ def run(env_wrapper, seed_num, update_on):
     goal_score = env_wrapper.goal_score
     max_score = env_wrapper.max_score
 
-    width, height = env.getScreenDims()
-    print(width, height)
-
     if env_name == 'cartpole':
         agent = Agent(2, [0, 1], update_on, env_wrapper.max_episode, 256)
+        width, height = 0, 0
     else:
         agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
+        width, height = env.getScreenDims()
 
     recent_socres = deque(maxlen=10)
     for e in range(env_wrapper.max_episode+1):
