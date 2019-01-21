@@ -1,7 +1,7 @@
 import torch
 import random
 import numpy as np
-
+from collections import deque
 from .agent import Agent
 from .config import device
 from .envs import LogMaker, get_envs
@@ -35,7 +35,7 @@ def run(env_wrapper, seed_num, update_on):
     else:
         agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
 
-    running_score = 0
+    recent_socres = deque(maxlen=10)
     for e in range(env_wrapper.max_episode+1):
         
         if env_name == 'cartpole':
@@ -72,14 +72,15 @@ def run(env_wrapper, seed_num, update_on):
         
         loss, q_discrepancy = agent.train()
             
-        if running_score == 0:
-            running_score = score
-        else:
-            running_score = 0.99 * running_score + 0.01 * score
+        
+        recent_socres.append(score)
         if e % 10 == 0:
             print('{} ||| {} episode | score: {:.2f} | epsilon: {:.2f}'.format(
                process_name, e, score, agent.epsilon))
         log_maker.log(e, loss, score, q_discrepancy)
+
+        if len(recent_socres) == 10 and np.array(recent_socres).min() >= goal_score * 0.9:
+            break
 
 
 if __name__=="__main__":
