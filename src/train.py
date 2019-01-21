@@ -10,11 +10,37 @@ from .envs import LogMaker, get_envs
 def case_env_state(env_name, state):
     if env_name == 'cartpole':
         return torch.Tensor(state[[0, 2]]).to(device)
+    if env_name == 'catcher':
+        return torch.Tensor([state['player_x'] / 64, state['fruit_x'] / 64, state['fruit_y'] / 64]).to(device)
+    if env_name == 'pong':
+        return torch.Tensor([state['player_y'] / 64, state['cpu_y'] / 64, state['ball_x'] / 64, state['ball_y'] / 64]).to(device)
+    if env_name == 'snake':
+       return torch.Tensor([state['snake_head_x'] / 64, state['snake_head_y'] / 64, state['food_x'] / 64, state['food_y'] / 64]).to(device) 
+
+    if env_name == 'flappybird':
+        return torch.Tensor([
+            state['player_y'] / 512,
+            state['player_vel'] / 100,
+
+            state['next_pipe_dist_to_player'] / 100,
+            state['next_pipe_top_y'] / 512,
+            state['next_pipe_bottom_y'] / 512,
+
+            state['next_next_pipe_dist_to_player'] / 100,
+            state['next_next_pipe_top_y'] / 512,
+            state['next_next_pipe_bottom_y'] / 512,
+        ])
     return torch.Tensor(list(state.values())).to(device)
 
 def case_state_len(env_name, env):
     if env_name == 'cartpole':
         return 2
+    if env_name == 'catcher':
+        return 3
+    if env_name == 'pong':
+        return 4
+    if env_name == 'snake':
+        return 4
     return len(env.getGameState().values())
 
 def run(env_wrapper, seed_num, update_on):
@@ -46,6 +72,7 @@ def run(env_wrapper, seed_num, update_on):
 
         done = False
         state = case_env_state(env_wrapper.name, state)
+        
         score = 0
 
         while not done:
@@ -54,11 +81,10 @@ def run(env_wrapper, seed_num, update_on):
                 next_state, reward, done, _ = env.step(action)
             else:
                 reward = env.act(real_action)
-
+                
                 next_state = env.getGameState()
                 done = env.game_over()
             next_state = case_env_state(env_wrapper.name, next_state)
-
 
             mask = 0 if done else 1
 
@@ -75,8 +101,8 @@ def run(env_wrapper, seed_num, update_on):
         
         recent_socres.append(score)
         if e % 10 == 0:
-            print('{} ||| {} episode | score: {:.2f} | epsilon: {:.2f}'.format(
-               process_name, e, score, agent.epsilon))
+            print('{} ||| {} episode | score: {:.2f} | epsilon: {:.4f} | min-score: {:.2f} | lr: {:.5f}'.format(
+               process_name, e, score, agent.epsilon, np.array(recent_socres).min(), agent.lr))
         log_maker.log(e, loss, score, q_discrepancy)
 
         if len(recent_socres) == 10 and np.array(recent_socres).min() >= goal_score * 0.9:

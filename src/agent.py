@@ -50,7 +50,7 @@ class Agent:
         self.memory.push(state, next_state, action, reward, mask, self.hidden)
 
     def adjust_lr(self):
-        self.lr = max(lr * 0.99, 0.0001)
+        self.lr = max(self.lr * 0.995, 0.0005)
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = self.lr
     
@@ -58,7 +58,7 @@ class Agent:
         loss, q_discrepancy = None, None
         if len(self.memory) > batch_size:
             self.epsilon -= (1.5 / self.max_episode)
-            self.epsilon = max(self.epsilon, 0.00001)
+            self.epsilon = max(self.epsilon, 0.001)
             for _ in range(10):
                 batch, indexes = self.memory.sample(batch_size)
                 loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch)
@@ -66,5 +66,5 @@ class Agent:
                 self.memory.rnn_state_update(indexes, new_rnn_state, self.update_on)
             self.update_target_model()
         
-        self.adjust_lr()
+            self.adjust_lr()
         return loss, q_discrepancy

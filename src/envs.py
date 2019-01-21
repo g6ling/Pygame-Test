@@ -5,9 +5,8 @@ import gym
 from ple import PLE
 from ple.games.catcher import Catcher
 from ple.games.pixelcopter import Pixelcopter
-from ple.games.pong import Pong
 from ple.games.snake import Snake
-from ple.games.waterworld import WaterWorld
+from ple.games.pong import Pong
 from ple.games.flappybird import FlappyBird
 
 
@@ -21,13 +20,22 @@ class EnvWrapper():
 def get_envs():
     envs = [
         EnvWrapper('cartpole', gym.make('CartPole-v1'), 500, 2000),
-        EnvWrapper('catcher', PLE(Catcher(init_lives=1), fps=30, display_screen=False), 500, 2000),
-        EnvWrapper('flappybird', PLE(FlappyBird(), fps=30, display_screen=True, reward_values={
+        EnvWrapper('catcher', PLE(Catcher(init_lives=1), display_screen=False, reward_values={
+            "positive": 1,
+            "negative": -1,
+            "loss": -1,
+        }), 100, 1000),
+        EnvWrapper('flappybird', PLE(FlappyBird(), display_screen=False, reward_values={
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 1000, 2000),
-        EnvWrapper('pixelcopter', PLE(Pixelcopter(), fps=30, display_screen=False), 200, 2000),
+        }), 100, 2000),
+        EnvWrapper('snake', PLE(Snake(init_length=1), display_screen=True), 200, 2000),
+        EnvWrapper('pong', PLE(Pong(MAX_SCORE=3, cpu_speed_ratio=0.25), reward_values={
+            "positive": 1,
+            "tick": 0.1,
+            "loss": -1,
+        }, display_screen=True), 200, 2000),
     ]
     return envs
 
