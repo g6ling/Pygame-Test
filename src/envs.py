@@ -11,26 +11,31 @@ from ple.games.flappybird import FlappyBird
 
 
 class EnvWrapper():
-    def __init__(self, name, env, goal_score, max_episode):
+    def __init__(self, name, env, goal_score, max_score, max_episode):
         self.name = name
         self.env = env
         self.goal_score = goal_score
         self.max_episode = max_episode
+        self.max_score = max_score
 
 def get_envs():
     envs = [
-        EnvWrapper('cartpole', gym.make('CartPole-v1'), 500, 2000),
+        EnvWrapper('cartpole', gym.make('CartPole-v1'), 500, 550, 2000),
         EnvWrapper('catcher', PLE(Catcher(init_lives=1), display_screen=False, reward_values={
             "positive": 1,
             "negative": -1,
             "loss": -1,
-        }), 100, 1000),
-        EnvWrapper('pixelcopter', PLE(Pixelcopter(), display_screen=False), 200, 1500),
-                EnvWrapper('flappybird', PLE(FlappyBird(), display_screen=False, reward_values={
+        }), 100, 110, 1000),
+        EnvWrapper('snake', PLE(Snake(height=256, width=256), display_screen=True, reward_values={
+            "tick": -0.01,
+            "positive": 5,
+            "loss": -1,
+        }), 100, 110, 1500),
+        EnvWrapper('flappybird', PLE(FlappyBird(), display_screen=False, reward_values={
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 100, 1500),
+        }), 100, 110, 1500),
     ]
     return envs
 

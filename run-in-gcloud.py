@@ -17,10 +17,10 @@ import os
 if __name__ == '__main__':
     send('Start Commands')
 
-    pool = Pool(1)
+    pool = Pool(4)
     commands = []
     for env_num in [0,1,2,3]:
-        for i in range(1, 1+1):
+        for i in range(1, 4+1):
             seed_num = i * 100
             commands.append('python test.py --seed_num=%d --env_num=%d --update_on' % (seed_num, env_num))
             # commands.append('python test.py --seed_num=%d --env_num=%d' % (seed_num, env_num))
