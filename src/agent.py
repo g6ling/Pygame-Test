@@ -55,13 +55,15 @@ class Agent:
             param_group['lr'] = self.lr
     
     def train(self):
-        loss, q_discrepancy = None, None
+        loss_sum, q_discrepancy_sum = 0, 0
         if len(self.memory) > batch_size:
             self.epsilon -= (1.5 / self.max_episode)
             self.epsilon = max(self.epsilon, 0.001)
             for _ in range(10):
                 batch, indexes = self.memory.sample(batch_size)
                 loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch)
+                loss_sum += loss
+                q_discrepancy_sum += abs(q_discrepancy)
 
                 self.memory.rnn_state_update(indexes, new_rnn_state, self.update_on)
             self.update_target_model()
