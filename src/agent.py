@@ -3,7 +3,7 @@ import torch.optim as optim
 
 from .memory import Memory
 from .model import DRQN
-from .config import lr, batch_size, replay_memory_capacity, device
+from .config import lr, batch_size, replay_memory_capacity, device, sequence_length
 class Agent:
     def __init__(self, num_inputs, action_set, update_on, max_episode, hidden_size):
         self.num_inputs = num_inputs
@@ -69,4 +69,5 @@ class Agent:
             self.update_target_model()
         
             self.adjust_lr()
-        return loss_sum, q_discrepancy_sum
+        q_discrepancy_mean = q_discrepancy_sum / sequence_length
+        return loss_sum, q_discrepancy_mean
