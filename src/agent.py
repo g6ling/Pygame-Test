@@ -69,4 +69,4 @@ class Agent:
             self.update_target_model()
         
             self.adjust_lr()
-        return loss, q_discrepancy
+        return loss_sum, q_discrepancy_sum
