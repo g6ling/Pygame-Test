@@ -34,7 +34,7 @@ class Agent:
     
 
     def reset(self):
-        self.hidden = (torch.Tensor().new_zeros(1, 32), torch.Tensor().new_zeros(1, 32))
+        self.hidden = (torch.Tensor().new_zeros(1, 32).to(device), torch.Tensor().new_zeros(1, 32).to(device))
 
     def update_target_model(self):
         # Target <- Net
