@@ -27,7 +27,7 @@ if __name__ == '__main__':
         if update_on:
             commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=%d --replay_memory=%d --update_on' % (seed_num, env_num, sequence_length, replay_memory))
         else:
-            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=%d --replay_memory=%d' % (seed_num, env_num, seed_num, replay_memory))
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=%d --replay_memory=%d' % (seed_num, env_num, sequence_length, replay_memory))
 
     for env in [0,1,2,3]:
         for i in range(1, 4+1):
