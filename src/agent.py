@@ -60,8 +60,8 @@ class Agent:
             self.epsilon -= (1.5 / self.max_episode)
             self.epsilon = max(self.epsilon, 0.001)
             for _ in range(10):
-                batch, indexes = self.memory.sample(batch_size)
-                loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch)
+                batch, indexes, start_rnn_states = self.memory.sample(batch_size)
+                loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch, start_rnn_states)
                 loss_sum += loss
                 q_discrepancy_sum += abs(q_discrepancy)
 

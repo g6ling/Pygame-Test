@@ -42,7 +42,7 @@ class DRQN(nn.Module):
 
 
     @classmethod
-    def train_model(cls, online_net, target_net, optimizer, batch):
+    def train_model(cls, online_net, target_net, optimizer, batch, start_rnn_states):
         def slice_burn_in(item):
             return item[:, burn_in_length:, :]
         states = torch.stack(batch.state).view(batch_size, sequence_length, online_net.num_inputs).to(device)
@@ -63,7 +63,12 @@ class DRQN(nn.Module):
         # states [sequence_length, batch_size, num_inputs]
         rnn_state = rnn_state.transpose(0,1).transpose(1,2)
         # rnn_state [sequence_length, 2, batch_size, hidden]
-        [hx, cx] = rnn_state[0].detach()
+
+        start_rnn_states = torch.stack(start_rnn_states).view(batch_size, 2, -1).to(device)
+        start_rnn_states = start_rnn_states.transpose(0, 1)
+
+        
+        [hx, cx] = start_rnn_states.detach()
         new_rnn_state_list = []
         
         for idx in range(sequence_length):
