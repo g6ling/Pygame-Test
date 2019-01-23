@@ -74,5 +74,5 @@ class Agent:
             self.update_target_model()
         
             self.adjust_lr()
-        q_discrepancy_mean = q_discrepancy_sum / self.sequence_length
-        return loss_sum, q_discrepancy_mean
+
+        return loss_sum, q_discrepancy_sum
