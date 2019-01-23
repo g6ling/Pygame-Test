@@ -21,7 +21,7 @@ if __name__ == '__main__':
     envs_name = ['cartpole', 'catcher', 'snake', 'flappybird']
     pool = Pool(4)
     commands = []
-    def push_command(env_num, seed_num, sequence_length, replay_memory, update_on):
+    def push_command(env_num, seed_num, update_on, sequence_length, replay_memory):
         
         make_log_file_name(envs_name[env_num], seed_num, update_on, sequence_length, replay_memory)
         if update_on:
