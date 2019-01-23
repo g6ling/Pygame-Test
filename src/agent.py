@@ -1,18 +1,23 @@
 import numpy as np
+import torch
 import torch.optim as optim
 
 from .memory import Memory
 from .model import DRQN
-from .config import lr, batch_size, replay_memory_capacity, device, sequence_length
+from .config import lr, batch_size, device
 class Agent:
-    def __init__(self, num_inputs, action_set, update_on, max_episode, hidden_size):
+    def __init__(self, num_inputs, action_set, update_on, max_episode, hidden_size, sequence_length, repaly_memory_length):
         self.num_inputs = num_inputs
         self.action_set = action_set
         self.num_actions = len(action_set)
         self.update_on = update_on
-        self.reset()
+        
+        self.epsilon = 0.2
+        self.lr = lr
+
         self.build_network(hidden_size)
-        self.memory = Memory(replay_memory_capacity)
+        self.memory = Memory(repaly_memory_length, sequence_length)
+        self.sequence_length = sequence_length
         if max_episode is not None:
             self.max_episode = max_episode
         else:
@@ -26,11 +31,10 @@ class Agent:
 
         self.optimizer = optim.Adam(self.online_net.parameters(), lr=self.lr)
         self.update_target_model()
+    
 
     def reset(self):
-        self.hidden = None
-        self.epsilon = 0.2
-        self.lr = lr
+        self.hidden = (torch.Tensor().new_zeros(1, 32), torch.Tensor().new_zeros(1, 32))
 
     def update_target_model(self):
         # Target <- Net
@@ -39,6 +43,7 @@ class Agent:
     def get_action(self, state):
         action, hidden = self.target_net.get_action(state, self.hidden)
         
+        self.used_hidden = self.hidden
         self.hidden = hidden
         if np.random.random() <= self.epsilon:
             action_num = np.random.randint(self.num_actions)
@@ -47,7 +52,7 @@ class Agent:
         return action_num, self.action_set[action_num]
     
     def push_replay(self, state, next_state, action, reward, mask):
-        self.memory.push(state, next_state, action, reward, mask, self.hidden)
+        self.memory.push(state, next_state, action, reward, mask, self.used_hidden)
 
     def adjust_lr(self):
         self.lr = max(self.lr * 0.995, 0.00005)
@@ -60,8 +65,8 @@ class Agent:
             self.epsilon -= (1.5 / self.max_episode)
             self.epsilon = max(self.epsilon, 0.001)
             for _ in range(10):
-                batch, indexes, start_rnn_states = self.memory.sample(batch_size)
-                loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch, start_rnn_states)
+                batch, indexes = self.memory.sample(batch_size)
+                loss, q_discrepancy, new_rnn_state = DRQN.train_model(self.online_net, self.target_net, self.optimizer, batch, self.sequence_length)
                 loss_sum += loss
                 q_discrepancy_sum += abs(q_discrepancy)
 
@@ -69,5 +74,5 @@ class Agent:
             self.update_target_model()
         
             self.adjust_lr()
-        q_discrepancy_mean = q_discrepancy_sum / sequence_length
+        q_discrepancy_mean = q_discrepancy_sum / self.sequence_length
         return loss_sum, q_discrepancy_mean

@@ -40,7 +40,7 @@ def case_state_len(env_name, env):
         return 7
     return len(env.getGameState().values())
 
-def run(env_wrapper, seed_num, update_on):
+def run(env_wrapper, seed_num, update_on, sequence_length, repaly_memory_length):
     env_name = env_wrapper.name
     torch.manual_seed(seed_num)
     random.seed(seed_num)
@@ -48,17 +48,17 @@ def run(env_wrapper, seed_num, update_on):
 
     process_name = '{} - {} - {}'.format(env_wrapper.name, seed_num, str(update_on))
     
-    log_maker = LogMaker(env_wrapper.name, seed_num, update_on)
+    log_maker = LogMaker(env_wrapper.name, seed_num, update_on, sequence_length, repaly_memory_length)
 
     env = env_wrapper.env
     goal_score = env_wrapper.goal_score
     max_score = env_wrapper.max_score
 
     if env_name == 'cartpole':
-        agent = Agent(2, [0, 1], update_on, env_wrapper.max_episode, 256)
+        agent = Agent(2, [0, 1], update_on, env_wrapper.max_episode, 256, sequence_length, repaly_memory_length)
         width, height = 0, 0
     else:
-        agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256)
+        agent = Agent(case_state_len(env_wrapper.name, env), env.getActionSet(), update_on, env_wrapper.max_episode, 256, sequence_length, repaly_memory_length)
         width, height = env.getScreenDims()
 
     recent_socres = deque(maxlen=10)
@@ -74,6 +74,7 @@ def run(env_wrapper, seed_num, update_on):
         state = case_env_state(env_wrapper.name, state, width, height)
         
         score = 0
+        agent.reset()
 
         while not done:
             action, real_action = agent.get_action(state)
@@ -109,7 +110,3 @@ def run(env_wrapper, seed_num, update_on):
             break
 
 
-if __name__=="__main__":
-    envs = get_envs()
-    run(envs[0], 500, True)
-    # main(envs[0], 500, False)

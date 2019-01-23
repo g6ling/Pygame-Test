@@ -22,8 +22,10 @@ if __name__ == '__main__':
     for env_num in [0,1,2,3]:
         for i in range(1, 4+1):
             seed_num = i * 100
-            commands.append('python test.py --seed_num=%d --env_num=%d --update_on' % (seed_num, env_num))
-            # commands.append('python test.py --seed_num=%d --env_num=%d' % (seed_num, env_num))
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=100 --update_on' % (seed_num, env_num))
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=1000 --update_on' % (seed_num, env_num))
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=100' % (seed_num, env_num))
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=1000' % (seed_num, env_num))
     
     # for command in commands:
     #     call(command, shell=True)

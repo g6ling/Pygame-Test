@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .config import gamma, device, batch_size, sequence_length, burn_in_length, device
+from .config import gamma, device, batch_size, device
 
 class DRQN(nn.Module):
     def __init__(self, num_inputs, num_outputs, hidden_size):
@@ -42,7 +42,8 @@ class DRQN(nn.Module):
 
 
     @classmethod
-    def train_model(cls, online_net, target_net, optimizer, batch, start_rnn_states):
+    def train_model(cls, online_net, target_net, optimizer, batch, sequence_length):
+        burn_in_length = sequence_length - 4
         def slice_burn_in(item):
             return item[:, burn_in_length:, :]
         states = torch.stack(batch.state).view(batch_size, sequence_length, online_net.num_inputs).to(device)
@@ -64,19 +65,14 @@ class DRQN(nn.Module):
         rnn_state = rnn_state.transpose(0,1).transpose(1,2)
         # rnn_state [sequence_length, 2, batch_size, hidden]
 
-        start_rnn_states = torch.stack(start_rnn_states).view(batch_size, 2, -1).to(device)
-        start_rnn_states = start_rnn_states.transpose(0, 1)
-
         
-        [hx, cx] = start_rnn_states.detach()
+        [hx, cx] = rnn_state[0].detach()
         new_rnn_state_list = []
-        
         for idx in range(sequence_length):
             [ht, ct] = rnn_state[idx].detach()
-            qvalue_from_rnn_state, _ = online_net(states[idx], (ht, ct))
             new_rnn_state_list.append(torch.stack([hx, cx]).to(device))
+            qvalue_from_rnn_state, _ = online_net(states[idx], (ht, ct))
             qvalue_from_zero, (hx, cx) = online_net(states[idx], (hx, cx))
-            
 
             q_from_rnn_state.append(qvalue_from_rnn_state)
             q_from_zero.append(qvalue_from_zero)

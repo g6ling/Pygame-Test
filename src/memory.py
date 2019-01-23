@@ -3,21 +3,22 @@ from collections import namedtuple, deque
 import torch
 import numpy as np
 
-from .config import sequence_length, device
+from .config import device
 
 Transition = namedtuple('Transition', ('state', 'next_state', 'action', 'reward', 'mask', 'rnn_state'))
 
 class Memory(object):
-    def __init__(self, capacity):
+    def __init__(self, capacity, sequence_length):
         self.memory = []
         self.local_memory = []
         self.capacity = capacity
         self.memory_idx = 0
+        self.sequence_length = sequence_length
 
     def push(self, state, next_state, action, reward, mask, rnn_state):
         self.local_memory.append(Transition(state, next_state, action, reward, mask, torch.stack(rnn_state).view(2, -1)))
         if mask == 0:
-            while len(self.local_memory) < sequence_length:
+            while len(self.local_memory) < self.sequence_length:
                 self.local_memory.append(Transition(
                     torch.zeros_like(state),
                     torch.zeros_like(next_state),
@@ -40,18 +41,13 @@ class Memory(object):
         
         batch_indexes = np.random.choice(np.arange(len(self.memory)), batch_size, p=p)
         indexes = []
-        start_rnn_states = []
         for batch_idx in batch_indexes:
             episode = self.memory[batch_idx]
-            start = random.randint(0, len(episode) - sequence_length)
+            start = random.randint(0, len(episode) - self.sequence_length)
             
             indexes.append([batch_idx, start])
 
-            transitions = episode[start:start + sequence_length]
-            if start > 0:
-                start_rnn_states.append(episode[start-1].rnn_state)
-            else:
-                start_rnn_states.append(torch.Tensor(()).new_zeros(2,32))
+            transitions = episode[start:start + self.sequence_length]
             batch = Transition(*zip(*transitions))
 
             batch_state.append(torch.stack(list(batch.state)).to(device))
@@ -61,7 +57,7 @@ class Memory(object):
             batch_mask.append(torch.Tensor(list(batch.mask)).to(device))
             batch_rnn_state.append(torch.stack(list(batch.rnn_state)).to(device))
         
-        return Transition(batch_state, batch_next_state, batch_action, batch_reward, batch_mask, batch_rnn_state), indexes, start_rnn_states
+        return Transition(batch_state, batch_next_state, batch_action, batch_reward, batch_mask, batch_rnn_state), indexes
     
     def rnn_state_update(self, indexes, rnn_state, update_on):
         if update_on is True:
@@ -71,7 +67,7 @@ class Memory(object):
             for rnn_state_batch_idx, idx in enumerate(indexes):
                 [batch_idx, start] = idx
                 rnn_state_sequence_idx = 0
-                for transition_idx in range(start, start + sequence_length):
+                for transition_idx in range(start, start + self.sequence_length):
                     transition = self.memory[batch_idx][transition_idx]
                     self.memory[batch_idx][transition_idx] = Transition(transition.state, transition.next_state, transition.action, transition.reward, transition.mask, rnn_state[rnn_state_batch_idx][rnn_state_sequence_idx])
                     rnn_state_sequence_idx += 1

@@ -40,11 +40,11 @@ def get_envs():
     return envs
 
 
-def make_log_file_name(env_name, seed_num, update_on):
+def make_log_file_name(env_name, seed_num, update_on, sequence_length, repaly_memory_length):
     if update_on:
-        log_path = 'logs/%s/update_on' % (env_name)
+        log_path = 'logs/%d/%d/%s/update_on' % (sequence_length, repaly_memory_length ,env_name)
     else:
-        log_path = 'logs/%s/update_off' % (env_name)
+        log_path = 'logs/%d/%d/%s/update_off' % (sequence_length, repaly_memory_length ,env_name)
     log_path = os.path.join(os.getcwd(), log_path)
     
     if os.path.exists(log_path) is False:
@@ -57,11 +57,11 @@ def make_log_file_name(env_name, seed_num, update_on):
 
 
 class LogMaker():
-    def __init__(self, env_name, seed_num, update_on):
+    def __init__(self, env_name, seed_num, update_on, sequence_length, repaly_memory_length):
         self.loss_logs = []
         self.score_logs = []
         self.q_discrepancy_logs = []
-        self.loss_path, self.score_path, self.q_discrepancy_path = make_log_file_name(env_name, seed_num, update_on)
+        self.loss_path, self.score_path, self.q_discrepancy_path = make_log_file_name(env_name, seed_num, update_on, sequence_length, repaly_memory_length)
     
     def log(self, e, loss, score, q_discrepancy):
         if loss is not None and score is not None and q_discrepancy is not None:

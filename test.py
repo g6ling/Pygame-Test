@@ -14,11 +14,22 @@ if __name__ == '__main__':
     parser.add_argument('--update_on', default=False, action="store_true")
     parser.add_argument('--env_num', default=0)
     parser.add_argument('--seed_num', default=0)
+    parser.add_argument('--sequence_length', default=8)
+    parser.add_argument('--replay_memory', default=100)
 
     args = parser.parse_args()
     
     print(envs[int(args.env_num)].name, envs[int(args.env_num)].max_episode)
     
-    run(envs[int(args.env_num)], int(args.seed_num), args.update_on)
-    
-    send('Complete : ' + envs[int(args.env_num)].name + '\n seed: ' + args.seed_num + '\n update-on' + str(args.update_on))
+    run(envs[int(args.env_num)], int(args.seed_num), args.update_on, int(args.sequence_length), int(args.replay_memory))
+
+    send('Complete {}, {}, {}, {}, {}'.format(
+        envs[int(args.env_num)].name,
+        args.seed_num,
+        str(args.update_on),
+        args.sequence_length,
+        args.replay_memory
+    )) 
+    # send('Complete : ' + envs[int(args.env_num)].name + '\n seed: ' + args.seed_num + '\n update-on' + str(args.update_on))
+
+    # python test.py --update_on --env_num=0 --seed_num=100 --sequence_length=8 --replay_memory=100
