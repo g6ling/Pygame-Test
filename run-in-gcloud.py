@@ -3,6 +3,7 @@ import multiprocessing
 from multiprocessing.dummy import Pool
 from subprocess import call
 
+from src.envs import make_log_file_name
 from send_slack import send
 import timeit
 import os
@@ -17,15 +18,24 @@ import os
 if __name__ == '__main__':
     send('Start Commands')
 
+    envs_name = ['cartpole', 'catcher', 'snake', 'flappybird']
     pool = Pool(4)
     commands = []
-    for env_num in [0,1,2,3]:
+    def push_command(env_num, seed_num, sequence_length, replay_memory, update_on):
+        
+        make_log_file_name(envs_name[env_num], seed_num, update_on, sequence_length, replay_memory)
+        if update_on:
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=%d --replay_memory=%d --update_on' % (seed_num, env_num, sequence_length, replay_memory))
+        else:
+            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=%d --replay_memory=%d' % (seed_num, env_num, seed_num, replay_memory))
+
+    for env in [0,1,2,3]:
         for i in range(1, 4+1):
-            seed_num = i * 100
-            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=100 --update_on' % (seed_num, env_num))
-            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=1000 --update_on' % (seed_num, env_num))
-            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=100' % (seed_num, env_num))
-            commands.append('python test.py --seed_num=%d --env_num=%d --sequence_length=8 --replay_memory=1000' % (seed_num, env_num))
+            seed = i * 100
+            push_command(env, seed, True, 8, 100)
+            push_command(env, seed, True, 8, 1000)
+            push_command(env, seed, False, 8, 100)
+            push_command(env, seed, False, 8, 1000)
     
     # for command in commands:
     #     call(command, shell=True)
