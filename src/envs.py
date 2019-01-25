@@ -26,7 +26,7 @@ def get_envs():
             "negative": -1,
             "loss": -1,
         }), 100, 110, 1000),
-        EnvWrapper('snake', PLE(Snake(height=256, width=256), display_screen=True, reward_values={
+        EnvWrapper('snake', PLE(Snake(height=256, width=256), display_screen=False, reward_values={
             "tick": -0.01,
             "positive": 5,
             "loss": -1,
