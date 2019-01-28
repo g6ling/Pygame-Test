@@ -20,22 +20,22 @@ class EnvWrapper():
 
 def get_envs():
     envs = [
-        EnvWrapper('cartpole', gym.make('CartPole-v1'), 500, 550, 2000),
+        EnvWrapper('cartpole', gym.make('CartPole-v1'), 500, 550, 4000),
         EnvWrapper('catcher', PLE(Catcher(init_lives=1), display_screen=False, reward_values={
             "positive": 1,
             "negative": -1,
             "loss": -1,
-        }), 100, 110, 1000),
+        }), 100, 110, 3000),
         EnvWrapper('snake', PLE(Snake(height=256, width=256), display_screen=False, reward_values={
             "tick": -0.01,
             "positive": 5,
             "loss": -1,
-        }), 100, 110, 1500),
+        }), 100, 110, 3000),
         EnvWrapper('flappybird', PLE(FlappyBird(), display_screen=False, reward_values={
             "positive": 1,
             "tick": 0.1,
             "loss": -1,
-        }), 100, 110, 1500),
+        }), 100, 110, 3000),
     ]
     return envs
 
