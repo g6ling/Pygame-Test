@@ -3,72 +3,74 @@ import os
 import argparse
 import numpy as np
 from visdom import Visdom
+from src.envs import make_log_file_name
+graph_env_name = ['cartpole', 'catcher', 'flappybird', 'snake']
+# graph_env_name = ['flappybird', 'flappybird-12', 'flappybird-0']
 
+import matplotlib.pyplot as plt
 
-seed_max = 9
+def push_numpy(rewards, path):
+    loss_path, score_path, q_discrepan_path = path
+
+    _, loss = zip(*np.load(loss_path))
+    _, reward = zip(*np.load(score_path))
+    q_discrepance = np.load(q_discrepan_path)
+    # _, q_discrepance = zip(*np.load(q_discrepan_path))
+
+    rewards.append(list(reward))
+
+def append_lack(rewards):
+    max_length = max([len(reward) for reward in rewards])
+
+    for reward in rewards:
+        while len(reward) < max_length:
+            reward.append(reward[-1])
+
+def moving_avg(rewards):
+    window = 10
+    weights = np.repeat(1.0, window) / window
+
+    moving = []
+    for reward in rewards:
+        moving.append(np.convolve(np.array(reward), weights, 'valid'))
+
+    return np.array(moving)
+
 def main():
-    update_off_path = ['./logs/CartPole-v1/update_off/' + str(seed*100) for seed in range(1, seed_max+1)]
-    update_on_path = ['./logs/CartPole-v1/update_on/' + str(seed*100) for seed in range(1, seed_max+1)]
-    
-    update_off_rewards = []
-    update_on_rewards = []
-
-    update_off_losses = []
-    update_on_losses = []
-    
-    for path in update_off_path:
-        episode, reward = zip(*np.load(os.path.join(path, 'score.npy')))
-        _, loss = zip(*np.load(os.path.join(path, 'loss.npy')))
-        update_off_rewards.append(reward)
-        update_off_losses.append(loss)
-    
-    for path in update_on_path:
-        episode, reward = zip(*np.load(os.path.join(path, 'score.npy')))
-        _, loss = zip(*np.load(os.path.join(path, 'loss.npy')))
-        update_on_rewards.append(reward)
-        update_on_losses.append(loss)
-    
-    update_off_reward_avg = np.array(update_off_rewards).transpose().mean(axis=1)
-    update_off_losses_avg = np.array(update_off_losses).transpose().mean(axis=1)
-
-    update_on_reward_avg = np.array(update_on_rewards).transpose().mean(axis=1)
-    update_on_losses_avg = np.array(update_on_losses).transpose().mean(axis=1)
-    
     viz = Visdom(env='main')
 
-    # Reward
-    viz.line(
-        X=np.array(episode).reshape(-1, 1).repeat(2, 1),
-        Y=np.column_stack([update_off_reward_avg, update_on_reward_avg]),
-        opts=dict(
-            legend=['off_reward', 'on_reward']
-        )
-    )
+    sequence_length=8
+    replay_length = 100
 
-    reward_legend = []
-    for i in range(1, seed_max+1):
-        reward_legend.append('off_reward_' + str(i))
+    for env_num in [0,1,2,3]:
+        update_off_rewards = []
+        update_on_rewards = []
 
-    for i in range(1, seed_max+1):
-        reward_legend.append('on_reward_' + str(i))
         
-    viz.line(
-        X=np.array(episode).reshape(-1, 1).repeat(seed_max * 2, 1),
-        Y=np.column_stack(np.concatenate([update_off_rewards, update_on_rewards], axis=0)),
-        opts=dict(
-            legend=reward_legend
-        )  
-    )
+        for i in range(1, 4+1):
+            seed_num = 100 * i
+            push_numpy(update_off_rewards, make_log_file_name(graph_env_name[env_num], seed_num, False, sequence_length, replay_length))
+            push_numpy(update_on_rewards, make_log_file_name(graph_env_name[env_num], seed_num, True, sequence_length, replay_length))
 
-    # Loss
-    viz.line(
-        X=np.array(episode).reshape(-1, 1).repeat(2, 1),
-        Y=np.column_stack([update_off_losses_avg, update_on_losses_avg]),
-        opts=dict(
-            legend=['off_loss', 'on_loss']
+        append_lack(update_off_rewards + update_on_rewards)
+
+
+        update_off_rewards = moving_avg(update_off_rewards)
+        update_on_rewards = moving_avg(update_on_rewards)
+
+        update_off_rewards = update_off_rewards.transpose()
+        update_on_rewards = update_on_rewards.transpose()
+
+        update_off_reward_avg = update_off_rewards.mean(axis=1)
+        update_on_reward_avg = update_on_rewards.mean(axis=1)
+
+        viz.line(
+           X=np.array(range(len(update_off_reward_avg))).reshape(-1, 1).repeat(2, 1),
+            Y=np.column_stack([update_off_reward_avg, update_on_reward_avg]),
+            opts=dict(
+                legend=['non-update-stored-state', 'upate-stored-state'], title='%s-%d-%d'%(graph_env_name[env_num], sequence_length, replay_length)
+            )
         )
-    )
-
 
 
 if __name__ == '__main__':

@@ -6,8 +6,8 @@ from src.train import run
 from src.envs import get_envs
 
 if __name__ == '__main__':
-    os.putenv('SDL_VIDEODRIVER', 'fbcon')
-    os.environ["SDL_VIDEODRIVER"] = "dummy"
+    # os.putenv('SDL_VIDEODRIVER', 'fbcon')
+    # os.environ["SDL_VIDEODRIVER"] = "dummy"
     envs = get_envs()
 
     parser = argparse.ArgumentParser()
